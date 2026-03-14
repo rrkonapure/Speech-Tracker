@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1117" />
+  <meta name="description" content="Track how much you speak throughout the day" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SpeechTrack" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <title>SpeechTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <header class="app-header">
+      <div class="header-left">
+        <div class="app-logo">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="8" fill="#1D9E75"/>
+            <rect x="12" y="5" width="4" height="12" rx="2" fill="white"/>
+            <path d="M7 13c0 3.866 3.134 7 7 7s7-3.134 7-7" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <line x1="14" y1="20" x2="14" y2="23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <line x1="10" y1="23" x2="18" y2="23" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="app-title">SpeechTrack</h1>
+          <p class="app-date" id="appDate"></p>
+        </div>
+      </div>
+      <button class="reset-btn" id="resetBtn" onclick="resetDay()">Reset day</button>
+    </header>
+
+    <div class="permission-banner" id="permBanner" style="display:none">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#BA7517" stroke-width="1.5"/><line x1="8" y1="5" x2="8" y2="9" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="#BA7517"/></svg>
+      Microphone access denied. Please allow permission in browser settings.
+    </div>
+
+    <section class="mic-section">
+      <div class="vol-visualizer" id="volViz">
+        <div class="waveform" id="waveform">
+          <span class="wave-bar" id="wb0"></span>
+          <span class="wave-bar" id="wb1"></span>
+          <span class="wave-bar" id="wb2"></span>
+          <span class="wave-bar" id="wb3"></span>
+          <span class="wave-bar" id="wb4"></span>
+          <span class="wave-bar" id="wb5"></span>
+          <span class="wave-bar" id="wb6"></span>
+          <span class="wave-bar" id="wb7"></span>
+          <span class="wave-bar" id="wb8"></span>
+        </div>
+      </div>
+
+      <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+        <div class="mic-ring" id="micRing"></div>
+        <svg class="mic-icon" width="36" height="36" viewBox="0 0 36 36" fill="none">
+          <rect x="13" y="4" width="10" height="16" rx="5" fill="currentColor"/>
+          <path d="M8 17c0 5.523 4.477 10 10 10s10-4.477 10-10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <line x1="18" y1="27" x2="18" y2="31" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="13" y1="31" x2="23" y2="31" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="mic-btn-label" id="micBtnLabel">Start</span>
+      </button>
+
+      <div class="session-timer" id="sessionTimer">00:00</div>
+      <div class="mic-status" id="micStatus">Tap to begin recording</div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">🕐</div>
+        <div class="stat-val" id="statTotal">0<span class="stat-u">min</span></div>
+        <div class="stat-label">Total today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-val" id="statSessions">0</div>
+        <div class="stat-label">Sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔊</div>
+        <div class="stat-val" id="statAvgVol">–</div>
+        <div class="stat-label">Avg volume</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏱</div>
+        <div class="stat-val" id="statLongest">0<span class="stat-u">s</span></div>
+        <div class="stat-label">Longest</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Voice activity</h2>
+      <div class="level-row">
+        <div class="level-label">Loud</div>
+        <div class="level-track"><div class="level-fill loud" id="fillLoud" style="width:0%"></div></div>
+        <div class="level-pct" id="pctLoud">0%</div>
+      </div>
+      <div class="level-row">
+        <div class="level-label">Normal</div>
+        <div class="level-track"><div class="level-fill norm" id="fillNorm" style="width:0%"></div></div>
+        <div class="level-pct" id="pctNorm">0%</div>
+      </div>
+      <div class="level-row">
+        <div class="level-label">Soft</div>
+        <div class="level-track"><div class="level-fill soft" id="fillSoft" style="width:0%"></div></div>
+        <div class="level-pct" id="pctSoft">0%</div>
+      </div>
+      <div class="badges" id="badges"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Session log</h2>
+      <ul class="log-list" id="logList">
+        <li class="log-empty">No sessions yet — tap the mic to start</li>
+      </ul>
+    </section>
+
+    <div class="install-banner" id="installBanner" style="display:none">
+      <div class="install-text">
+        <strong>Install app</strong>
+        <span>Add to home screen for all-day tracking</span>
+      </div>
+      <button class="install-btn" id="installBtn">Install</button>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
