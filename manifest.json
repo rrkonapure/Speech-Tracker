@@ -1,7 +1,7 @@
 {
-  "name": "SpeechTrack — Daily Speech Tracker",
-  "short_name": "SpeechTrack",
-  "description": "Measure and analyse how much you speak throughout the day",
+  "name": "DayTrack — Voice & Step Tracker",
+  "short_name": "DayTrack",
+  "description": "Track your daily voice and steps",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
